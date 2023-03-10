@@ -3,9 +3,25 @@
 scope --> 192.168.255.26
 url --> prioritask.daw.institutmontilivi.cat
 
-L'scope ès tota la màquina, aquesta respon a la IP 192.168.255.26 i conté la pagina web http://prioritask.daw.institutmontilivi.cat.
+L'scope ès tota la màquina, aquesta respon a la IP 192.168.255.26 i conté la pàgina web http://prioritask.daw.institutmontilivi.cat.
 
 ## Resum Executiu
+
+Un cop feta l'auditoria a la pàgina web prioritask.daw.institutmontilivi.cat IP **192.168.255.26** podem afirmar que l'equip de _red team_ ha aconseguit el codi, tenir accés a la base de dades i accés com a **administrador (root)** per tant, tenir control total de la màquina.  
+
+![image](https://user-images.githubusercontent.com/113126548/224399379-4ec83d1d-a6d8-4578-ac25-b2e50a6aa60b.png)
+
+![image](https://user-images.githubusercontent.com/113126548/224399440-87c1970c-d622-49a4-b795-72d94c4127cf.png)
+
+![image](https://user-images.githubusercontent.com/113126548/224399538-7cd0c0d9-a464-4949-abc0-5b3b4ddf657b.png)
+
+Per dur a terme aquesta auditoria s'han fet un conjunt de testos amb la finalitat de descobrir punts vulnerables per on es pot obtenir accés a la màquina. En primer lloc, ens agradaria posar en valor que el lloc web té una estructura sólida que, mitjançant vulnerabilitats en el codi és molt difícil trencar la disponibilitat accessibilitat i confidencialitat. Si s'ha aconseguit accedir a la màquina és per altres errades que es mencionaran a continuació. 
+
+Les vulnerabilitats que han permès obtenir control total de la màquina són, en primer lloc, que s'ha pogut localitzar el codi de l'aplicació al GitHub, ja que el repositori del creador està obert. Analitzant aquest codi hem pogut esbrinar com funciona l'aplicació, però el més rellevant és que aquest codi conté la contrasenya de connexió a la base de dades i l'usuari. Amb aquesta informació ja tenim control total sobre la base de dades. Seguidament, s'ha intentat fer una connexió SSH amb l'usuari **root** i utilitzant la mateixa contrasenya que dona accés a la base de dades. Aquest intent ha resultat ser satisfactori, per tant, ja tenim accés total a la màquina. 
+A part d'aquestes vulnerabilitats, també n'hi ha d'altres com utilitzar algoritmes de xifratge insegurs o alguns paquets del servidor desactualitzats. També és important mencionar que fent el canvi d'un rol que es guarda al navegador podem passar a ser administrador i veure la mateixa informació que l'administrador tot i que és comprovat correctament el token sigui d'administrador no et deixa modificar ni crear noves tasques. 
+El darrer punt relacionat amb les vulnerabilitats que voldríem mencionar és que el fet que no es passin **tests** comporta un risc molt elevat que en actualitzar el codi de l'aplicació, si aquest té errors pot afectar a la disponibilitat de l'aplicació, és a dir d'aplicació deixaria d'estar disponible durant un cert temps amb la corresponent pèrdua d'ingressos que es pot derivar.
+
+Malgrat les vulnerabilitats mencionades, l'aplicació està ben programada, ja que podem certificar que el login és segur, no s'hi pot fer cap injecció de codi. Igualment, tampoc es pot accedir a llocs indeguts modificant l'URL de l'aplicació. Finalment, també valorem positivament que el repositori del codi de l'aplicació NO està al servidor. 
 
 ## Once Exploited
 
@@ -25,7 +41,7 @@ Persona --> Jaume
 Temps --> 06/03/2023
 Acció --> Reconeixement actiu amb NMAP
 Endpoint --> 192.168.255.26
-Resultat --> Hi han els ports **22 80 443 12320 12321 12322** oberts
+Resultat --> Hi ha els ports **22 80 443 12320 12321 12322** oberts
 Output:
 
 --> Nmap complet
@@ -228,7 +244,7 @@ Output:
 **Acció 5:**
 Persona --> Angel
 Temps --> 06/03/2023 --> 18:00 --> 20:55
-Acció --> Revisio de vulnerabilitats visibles en el codi des del navegador
+Acció --> Revisió de vulnerabilitats visibles en el codi des del navegador
 Endpoint --> 192.168.255.26
 Resultat -->
 -Trobat apikey en text pla al fitxer LoginView.vue:
@@ -300,14 +316,14 @@ jaumellb@jaumellb-virtualbox:$ curl http://prioritask.daw.institutmontilivi.cat/
 
 Persona --> Jaume
 Temps --> 08/03/2023 --> 17:30
-Acció --> Descarregar el codi del respositori amb un Git Clone obtingut amb osint 
+Acció --> Descarregar el codi del repositori amb un Git Clone obtingut amb osint 
 Endpoint --> http://prioritask.daw.institutmontilivi.cat/
 Resultat --> Tenim tot el codi de l'aplicació. MOLT IMPORTANT, hem obtingut la contrasenya de connexió a la base de dades. 
 Output:
 
 Contrasenya de la base de dades:
 `self::$connection = new PDO("mysql:host=localhost;dbname=PrioriTaskBD", "adminer", "Bhun@89ble.oient");`
-També sabem que el gestor de base de dades és el `adminer`
+També sabem que el gestor de base de dades és `adminer`
 
 Codi:
 ![image](https://user-images.githubusercontent.com/113126548/223785965-09e604e2-3fb2-4baa-9e5f-0034b3debffc.png)
@@ -549,7 +565,7 @@ root@prioritask /etc#
 **Acció 11:**
 Persona --> Angel
 Temps --> 07/03/2023 --> 17:00 --> 18:30
-Acció --> Revisio de codi trobat al repositori: https://github.com/LuisMezaMontilivi/PrioriTask
+Acció --> Revisió de codi trobat al repositori: https://github.com/LuisMezaMontilivi/PrioriTask
 Endpoint --> 192.168.255.26
 Resultat -->
 
@@ -578,7 +594,7 @@ http://prioritask.daw.institutmontilivi.cat/api/usuari/modificar
 ```
 
 - Software and Data Integrity Failures:
-No hi ha cap test per a cap de les funcionalitats de l'aplicacio
+No hi ha cap test per a cap de les funcionalitats de l'aplicació
 
 **Acció 12:**
 
@@ -656,7 +672,7 @@ Acció --> Acces a la bdd i creacio d'un usuari administrador
 Endpoint --> 192.168.255.26
 Resultat --> 
 
-- Com que hem aconseguit el codi en el repositori amb l'usuari i contrasenya de la bdd i sabem que el gestor de bdd que fan servir es "adminer 4.7.9", Accedim a la bdd i crearem un usuari amb rol d'administrador per aixi tenir acces total a les funcionalitats de l'aplicacio. El password l'hem de xifrar amb l'algoritme que fan servir "sha-256"
+- Com que hem aconseguit el codi en el repositori amb l'usuari i contrasenya de la bdd i sabem que el gestor de bdd que fan servir es "adminer 4.7.9", Accedim a la bdd i crearem un usuari amb rol d'administrador per aixi tenir acces total a les funcionalitats de l'aplicació. El password l'hem de xifrar amb l'algoritme que fan servir "sha-256"
 ![usuarisBdd](https://user-images.githubusercontent.com/78735128/223495982-bd53b252-a702-45a5-986a-38aab42e7f09.png)
 
 - Accedim amb l'usuari oldschool@oldschool.cat : Admin123
